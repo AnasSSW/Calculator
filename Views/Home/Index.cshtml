@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
@@ -227,7 +231,7 @@
                 <button class="btn-number" onclick="inputDot('ajax')">.</button>
 
                 <button class="btn-number btn-zero" onclick="inputNumber('ajax', '0')">0</button>
-                <button class="btn-equals" onclick="calculateAjax()" rowspan="2">=</button>
+                <button class="btn-equals" onclick="calculateAjax()">=</button>
             </div>
             
             <div class="status status-idle" id="status-ajax">พร้อมเชื่อมต่อ ASP.NET MVC (AJAX)</div>
@@ -547,32 +551,32 @@
         // รองรับคีย์บอร์ด
         document.addEventListener('keydown', function(event) {
             const key = event.key;
-            
-            // เลือกเครื่องคิดเลขที่จะใช้งาน (ใช้ Ajax เป็นค่าเริ่มต้น, Shift+key = Fetch)
-            const calc = event.shiftKey ? 'fetch' : 'ajax';
-            
+
             // ป้องกันการทำงานของคีย์บอร์ดปกติ
             if ('0123456789+-*/.=Enter'.includes(key) || key === 'Backspace' || key === 'Delete' || key === 'Escape') {
                 event.preventDefault();
             }
-            
-            if (key >= '0' && key <= '9') {
-                inputNumber(calc, key);
-            } else if (key === '.') {
-                inputDot(calc);
-            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
-                inputOperator(calc, key);
-            } else if (key === 'Enter' || key === '=') {
-                if (calc === 'ajax') {
-                    calculateAjax();
-                } else {
-                    calculateFetch();
+
+            // loop ทำงานกับทั้ง ajax และ fetch พร้อมกัน
+            ['ajax', 'fetch'].forEach(calc => {
+                if (key >= '0' && key <= '9') {
+                    inputNumber(calc, key);
+                } else if (key === '.') {
+                    inputDot(calc);
+                } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                    inputOperator(calc, key);
+                } else if (key === 'Enter' || key === '=') {
+                    if (calc === 'ajax') {
+                        calculateAjax();
+                    } else {
+                        calculateFetch();
+                    }
+                } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                    clearAll(calc);
+                } else if (key === 'Backspace') {
+                    clearEntry(calc);
                 }
-            } else if (key === 'Escape' || key === 'c' || key === 'C') {
-                clearAll(calc);
-            } else if (key === 'Backspace') {
-                clearEntry(calc);
-            }
+            });
         });
 
         // แสดงข้อความช่วยเหลือเมื่อโหลดหน้า

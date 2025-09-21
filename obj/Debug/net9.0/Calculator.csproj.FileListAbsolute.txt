@@ -180,8 +180,6 @@ C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\17lb
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\u9m8g7sma9-9vr69e8ynj.gz
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\obhhao51i1-87fc7y1x7t.gz
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\ey491foyjw-mlv21k5csn.gz
-C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\jbwx5bcigc-i5x0aapdsa.gz
-C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\6ds2epm1y5-i5x0aapdsa.gz
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\staticwebassets.build.json.cache
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\staticwebassets.development.json
@@ -191,3 +189,5 @@ C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\refint\Calculat
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\Calculator.pdb
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\Calculator.genruntimeconfig.cache
 C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\ref\Calculator.dll
+C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\jbwx5bcigc-qykp2wey47.gz
+C:\Users\AnasDareme\Documents\GitHub\Calculator\obj\Debug\net9.0\compressed\6ds2epm1y5-qykp2wey47.gz
