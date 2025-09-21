@@ -1,0 +1,585 @@
+﻿<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgb(68, 68, 68);
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .calculator-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .calculator {
+            background: #2c2c2c;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            width: 350px;
+            border: 3px solid #444;
+        }
+
+        .calculator h2 {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .display {
+            background: #000;
+            color: #0ff;
+            font-size: 28px;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: right;
+            margin-bottom: 20px;
+            min-height: 40px;
+            border: 2px solid #333;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .display-equation {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            min-height: 16px;
+        }
+
+        .display-result {
+            font-size: 28px;
+            color: #0ff;
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .btn-number {
+            background: linear-gradient(145deg, #4a4a4a, #3a3a3a);
+            color: white;
+        }
+
+        .btn-number:hover {
+            background: linear-gradient(145deg, #5a5a5a, #4a4a4a);
+        }
+
+        .btn-operator {
+            background: linear-gradient(145deg, #ff8c42, #ff6b1a);
+            color: white;
+        }
+
+        .btn-operator:hover {
+            background: linear-gradient(145deg, #ff9c52, #ff7b2a);
+        }
+
+        .btn-operator.active {
+            background: linear-gradient(145deg, #fff, #ddd);
+            color: #ff6b1a;
+        }
+
+        .btn-equals {
+            background: linear-gradient(145deg, #28a745, #20c997);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-equals:hover {
+            background: linear-gradient(145deg, #38b755, #30d9a7);
+        }
+
+        .btn-clear {
+            background: linear-gradient(145deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: linear-gradient(145deg, #ec4555, #d83343);
+        }
+
+        .btn-zero {
+            grid-column: span 2;
+        }
+
+        .status {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            min-height: 20px;
+            font-size: 12px;
+        }
+
+        .status-loading {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .status-success {
+            background: rgba(40, 167, 69, 0.2);
+            color: #28a745;
+            border: 1px solid #28a745;
+        }
+
+        .status-error {
+            background: rgba(220, 53, 69, 0.2);
+            color: #dc3545;
+            border: 1px solid #dc3545;
+        }
+
+        .status-idle {
+            background: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid #6c757d;
+        }
+
+        @@media (max-width: 768px) {
+            .calculator-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .calculator {
+                width: 300px;
+            }
+
+            button {
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>เครื่องคิดเลขแบบปกติ - เปรียบเทียบ AJAX vs Fetch</h1>
+    
+    <div class="calculator-container">
+        <!-- เครื่องคิดเลขที่ 1: ใช้ AJAX -->
+        <div class="calculator">
+            <h2>🔧 เครื่องคิดเลข AJAX</h2>
+            
+            <div class="display">
+                <div class="display-equation" id="equation-ajax"></div>
+                <div class="display-result" id="display-ajax">0</div>
+            </div>
+            
+            <div class="keypad">
+                <button class="btn-clear" onclick="clearAll('ajax')">C</button>
+                <button class="btn-clear" onclick="clearEntry('ajax')">CE</button>
+                <button class="btn-operator" onclick="inputOperator('ajax', '/')" data-calc="ajax" data-op="/">÷</button>
+                <button class="btn-operator" onclick="inputOperator('ajax', '*')" data-calc="ajax" data-op="*">×</button>
+                
+                <button class="btn-number" onclick="inputNumber('ajax', '7')">7</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '8')">8</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '9')">9</button>
+                <button class="btn-operator" onclick="inputOperator('ajax', '-')" data-calc="ajax" data-op="-">-</button>
+                
+                <button class="btn-number" onclick="inputNumber('ajax', '4')">4</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '5')">5</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '6')">6</button>
+                <button class="btn-operator" onclick="inputOperator('ajax', '+')" data-calc="ajax" data-op="+">+</button>
+                
+                <button class="btn-number" onclick="inputNumber('ajax', '1')">1</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '2')">2</button>
+                <button class="btn-number" onclick="inputNumber('ajax', '3')">3</button>
+                <button class="btn-number" onclick="inputDot('ajax')">.</button>
+
+                <button class="btn-number btn-zero" onclick="inputNumber('ajax', '0')">0</button>
+                <button class="btn-equals" onclick="calculateAjax()" rowspan="2">=</button>
+            </div>
+            
+            <div class="status status-idle" id="status-ajax">พร้อมเชื่อมต่อ ASP.NET MVC (AJAX)</div>
+        </div>
+
+        <!-- เครื่องคิดเลขที่ 2: ใช้ Fetch -->
+        <div class="calculator">
+            <h2>⚡ เครื่องคิดเลข Fetch</h2>
+            
+            <div class="display">
+                <div class="display-equation" id="equation-fetch"></div>
+                <div class="display-result" id="display-fetch">0</div>
+            </div>
+            
+            <div class="keypad">
+                <button class="btn-clear" onclick="clearAll('fetch')">C</button>
+                <button class="btn-clear" onclick="clearEntry('fetch')">CE</button>
+                <button class="btn-operator" onclick="inputOperator('fetch', '/')" data-calc="fetch" data-op="/">÷</button>
+                <button class="btn-operator" onclick="inputOperator('fetch', '*')" data-calc="fetch" data-op="*">×</button>
+                
+                <button class="btn-number" onclick="inputNumber('fetch', '7')">7</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '8')">8</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '9')">9</button>
+                <button class="btn-operator" onclick="inputOperator('fetch', '-')" data-calc="fetch" data-op="-">-</button>
+                
+                <button class="btn-number" onclick="inputNumber('fetch', '4')">4</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '5')">5</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '6')">6</button>
+                <button class="btn-operator" onclick="inputOperator('fetch', '+')" data-calc="fetch" data-op="+">+</button>
+                
+                <button class="btn-number" onclick="inputNumber('fetch', '1')">1</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '2')">2</button>
+                <button class="btn-number" onclick="inputNumber('fetch', '3')">3</button>
+                <button class="btn-number" onclick="inputDot('fetch')">.</button>
+                
+                <button class="btn-number btn-zero" onclick="inputNumber('fetch', '0')">0</button>
+                <button class="btn-equals" onclick="calculateFetch()">=</button>
+            </div>
+            
+            <div class="status status-idle" id="status-fetch">พร้อมเชื่อมต่อ ASP.NET MVC (Fetch)</div>
+        </div>
+    </div>
+
+    <!-- jQuery สำหรับ AJAX -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        // State management สำหรับเครื่องคิดเลขทั้งสอง
+        const calculatorState = {
+            ajax: {
+                display: '0',
+                equation: '',
+                operator: null,
+                operand1: null,
+                operand2: null,
+                waitingForOperand: false,
+                justCalculated: false
+            },
+            fetch: {
+                display: '0',
+                equation: '',
+                operator: null,
+                operand1: null,
+                operand2: null,
+                waitingForOperand: false,
+                justCalculated: false
+            }
+        };
+
+        // อัพเดทหน้าจอ
+        function updateDisplay(calc) {
+            document.getElementById(`display-${calc}`).textContent = calculatorState[calc].display;
+            document.getElementById(`equation-${calc}`).textContent = calculatorState[calc].equation;
+        }
+
+        // อัพเดทสถานะ
+        function updateStatus(calc, type, message) {
+            const statusEl = document.getElementById(`status-${calc}`);
+            statusEl.className = `status status-${type}`;
+            statusEl.textContent = message;
+        }
+
+        // รีเซ็ตไฮไลท์ปุ่มออปเปอเรเตอร์
+        function resetOperatorHighlight(calc) {
+            document.querySelectorAll(`[data-calc="${calc}"]`).forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+
+        // ไฮไลท์ปุ่มออปเปอเรเตอร์
+        function highlightOperator(calc, op) {
+            resetOperatorHighlight(calc);
+            const btn = document.querySelector(`[data-calc="${calc}"][data-op="${op}"]`);
+            if (btn) btn.classList.add('active');
+        }
+
+        // กรอกตัวเลข
+        function inputNumber(calc, num) {
+            const state = calculatorState[calc];
+            
+            if (state.justCalculated) {
+                state.display = '0';
+                state.equation = '';
+                state.justCalculated = false;
+            }
+
+            if (state.waitingForOperand) {
+                state.display = num;
+                state.waitingForOperand = false;
+            } else {
+                state.display = state.display === '0' ? num : state.display + num;
+            }
+
+            updateDisplay(calc);
+        }
+
+        // กรอกจุดทศนิยม
+        function inputDot(calc) {
+            const state = calculatorState[calc];
+
+            if (state.justCalculated) {
+                state.display = '0.';
+                state.equation = '';
+                state.justCalculated = false;
+                updateDisplay(calc);
+                return;
+            }
+
+            if (state.waitingForOperand) {
+                state.display = '0.';
+                state.waitingForOperand = false;
+            } else if (state.display.indexOf('.') === -1) {
+                state.display += '.';
+            }
+
+            updateDisplay(calc);
+        }
+
+        // กรอกออปเปอเรเตอร์
+        function inputOperator(calc, nextOperator) {
+            const state = calculatorState[calc];
+            const inputValue = parseFloat(state.display);
+
+            if (state.operand1 === null) {
+                state.operand1 = inputValue;
+            } else if (state.operator && !state.waitingForOperand) {
+                // คำนวณผลลัพธ์ก่อน
+                if (calc === 'ajax') {
+                    performCalculationAjax();
+                } else {
+                    performCalculationFetch();
+                }
+                return;
+            }
+
+            state.waitingForOperand = true;
+            state.operator = nextOperator;
+            
+            // แสดงสัญลักษณ์ที่ถูกต้อง
+            const opSymbol = nextOperator === '*' ? '×' : nextOperator === '/' ? '÷' : nextOperator;
+            state.equation = `${state.operand1} ${opSymbol}`;
+            state.justCalculated = false;
+
+            highlightOperator(calc, nextOperator);
+            updateDisplay(calc);
+        }
+
+        // ล้างทุกอย่าง
+        function clearAll(calc) {
+            calculatorState[calc] = {
+                display: '0',
+                equation: '',
+                operator: null,
+                operand1: null,
+                operand2: null,
+                waitingForOperand: false,
+                justCalculated: false
+            };
+            resetOperatorHighlight(calc);
+            updateDisplay(calc);
+            updateStatus(calc, 'idle', `พร้อมเชื่อมต่อ ASP.NET MVC (${calc.toUpperCase()})`);
+        }
+
+        // ล้างค่าปัจจุบัน
+        function clearEntry(calc) {
+            calculatorState[calc].display = '0';
+            updateDisplay(calc);
+        }
+
+        // คำนวณด้วย AJAX
+        function calculateAjax() {
+            performCalculationAjax();
+        }
+
+        function performCalculationAjax() {
+            const state = calculatorState.ajax;
+            const inputValue = parseFloat(state.display);
+
+            if (state.operand1 === null || state.operator === null) return;
+
+            if (state.waitingForOperand) {
+                state.operand2 = state.operand1;
+            } else {
+                state.operand2 = inputValue;
+            }
+
+            updateStatus('ajax', 'loading', '⏳ กำลังส่งข้อมูลไป ASP.NET MVC... (AJAX)');
+
+            // แปลง operator เป็นรูปแบบที่ backend เข้าใจ
+            let operatorType = '';
+            switch(state.operator) {
+                case '+': operatorType = 'add'; break;
+                case '-': operatorType = 'subtract'; break;
+                case '*': operatorType = 'multiply'; break;
+                case '/': operatorType = 'divide'; break;
+            }
+
+            // ส่งข้อมูลไป Backend ด้วย AJAX
+            $.ajax({
+                url: '/Home/Calculate',
+                type: 'POST',
+                data: {
+                    num1: state.operand1,
+                    num2: state.operand2,
+                    operatorType: operatorType
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const opSymbol = state.operator === '*' ? '×' : state.operator === '/' ? '÷' : state.operator;
+                        
+                        state.display = String(response.result);
+                        state.equation = `${state.operand1} ${opSymbol} ${state.operand2} = ${response.result}`;
+                        state.operand1 = response.result;
+                        state.operator = null;
+                        state.operand2 = null;
+                        state.waitingForOperand = true;
+                        state.justCalculated = true;
+
+                        resetOperatorHighlight('ajax');
+                        updateDisplay('ajax');
+                        updateStatus('ajax', 'success', '✅ ASP.NET MVC ตอบสนองสำเร็จ (AJAX)');
+                    } else {
+                        updateStatus('ajax', 'error', `❌ ${response.message} (AJAX)`);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    updateStatus('ajax', 'error', `❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error} (AJAX)`);
+                }
+            });
+        }
+
+        // คำนวณด้วย Fetch
+        async function calculateFetch() {
+            await performCalculationFetch();
+        }
+
+        async function performCalculationFetch() {
+            const state = calculatorState.fetch;
+            const inputValue = parseFloat(state.display);
+
+            if (state.operand1 === null || state.operator === null) return;
+
+            if (state.waitingForOperand) {
+                state.operand2 = state.operand1;
+            } else {
+                state.operand2 = inputValue;
+            }
+
+            updateStatus('fetch', 'loading', '⏳ กำลังส่งข้อมูลไป ASP.NET MVC... (Fetch)');
+
+            // แปลง operator เป็นรูปแบบที่ backend เข้าใจ
+            let operatorType = '';
+            switch(state.operator) {
+                case '+': operatorType = 'add'; break;
+                case '-': operatorType = 'subtract'; break;
+                case '*': operatorType = 'multiply'; break;
+                case '/': operatorType = 'divide'; break;
+            }
+
+            try {
+                // ส่งข้อมูลไป Backend ด้วย Fetch
+                const response = await fetch('/Home/Calculate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        num1: state.operand1,
+                        num2: state.operand2,
+                        operatorType: operatorType
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    const opSymbol = state.operator === '*' ? '×' : state.operator === '/' ? '÷' : state.operator;
+                    
+                    state.display = String(data.result);
+                    state.equation = `${state.operand1} ${opSymbol} ${state.operand2} = ${data.result}`;
+                    state.operand1 = data.result;
+                    state.operator = null;
+                    state.operand2 = null;
+                    state.waitingForOperand = true;
+                    state.justCalculated = true;
+
+                    resetOperatorHighlight('fetch');
+                    updateDisplay('fetch');
+                    updateStatus('fetch', 'success', '✅ ASP.NET MVC ตอบสนองสำเร็จ (Fetch)');
+                } else {
+                    updateStatus('fetch', 'error', `❌ ${data.message} (Fetch)`);
+                }
+            } catch (error) {
+                updateStatus('fetch', 'error', `❌ เกิดข้อผิดพลาดในการเชื่อมต่อ: ${error.message} (Fetch)`);
+            }
+        }
+
+        // รองรับคีย์บอร์ด
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            // เลือกเครื่องคิดเลขที่จะใช้งาน (ใช้ Ajax เป็นค่าเริ่มต้น, Shift+key = Fetch)
+            const calc = event.shiftKey ? 'fetch' : 'ajax';
+            
+            // ป้องกันการทำงานของคีย์บอร์ดปกติ
+            if ('0123456789+-*/.=Enter'.includes(key) || key === 'Backspace' || key === 'Delete' || key === 'Escape') {
+                event.preventDefault();
+            }
+            
+            if (key >= '0' && key <= '9') {
+                inputNumber(calc, key);
+            } else if (key === '.') {
+                inputDot(calc);
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                inputOperator(calc, key);
+            } else if (key === 'Enter' || key === '=') {
+                if (calc === 'ajax') {
+                    calculateAjax();
+                } else {
+                    calculateFetch();
+                }
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearAll(calc);
+            } else if (key === 'Backspace') {
+                clearEntry(calc);
+            }
+        });
+
+        // แสดงข้อความช่วยเหลือเมื่อโหลดหน้า
+        window.addEventListener('load', function() {
+            updateStatus('ajax', 'idle', 'พร้อมใช้งาน - กดคีย์บอร์ดธรรมดาใช้ AJAX');
+            updateStatus('fetch', 'idle', 'พร้อมใช้งาน - กด Shift+คีย์บอร์ดใช้ Fetch');
+        });
+    </script>
+</body>
+</html>
