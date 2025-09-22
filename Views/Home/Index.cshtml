@@ -26,6 +26,13 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
+        p {
+            text-align: center;
+            color: white;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
         .calculator-container {
             display: flex;
             gap: 30px;
@@ -198,12 +205,11 @@
 </head>
 <body>
     <h1>เครื่องคิดเลขแบบปกติ - เปรียบเทียบ AJAX vs Fetch</h1>
-    
+    <p>กด TAP สลับ Calculator</p>
     <div class="calculator-container">
         <!-- เครื่องคิดเลขที่ 1: ใช้ AJAX -->
         <div class="calculator">
-            <h2>🔧 เครื่องคิดเลข AJAX</h2>
-            
+            <h2>AJAX Calculator</h2>
             <div class="display">
                 <div class="display-equation" id="equation-ajax"></div>
                 <div class="display-result" id="display-ajax">0</div>
@@ -239,7 +245,7 @@
 
         <!-- เครื่องคิดเลขที่ 2: ใช้ Fetch -->
         <div class="calculator">
-            <h2>⚡ เครื่องคิดเลข Fetch</h2>
+            <h2>Fetch Calculator</h2>
             
             <div class="display">
                 <div class="display-equation" id="equation-fetch"></div>
@@ -549,6 +555,37 @@
         }
 
         // รองรับคีย์บอร์ด
+        // ตัวแปรเก็บสถานะว่าเครื่องคิดเลขไหนกำลัง active
+        let activeCalculator = 'ajax'; // default เป็น ajax
+
+        // ฟังก์ชันสลับเครื่องคิดเลขที่ active
+        function setActiveCalculator(calc) {
+            activeCalculator = calc;
+            
+            // เปลี่ยนสี border หรือ highlight ให้เห็นว่าเครื่องไหน active
+            const ajaxCalc = document.getElementById('ajax-calculator');
+            const fetchCalc = document.getElementById('fetch-calculator');
+            
+            if (ajaxCalc && fetchCalc) {
+                ajaxCalc.style.border = calc === 'ajax' ? '3px solid #007bff' : '1px solid #ddd';
+                fetchCalc.style.border = calc === 'fetch' ? '3px solid #007bff' : '1px solid #ddd';
+            }
+        }
+
+        // Event listener สำหรับการคลิกเพื่อเลือกเครื่องคิดเลข
+        document.addEventListener('click', function(event) {
+            // ตรวจสอบว่าคลิกใน element ไหน
+            const ajaxCalc = document.getElementById('ajax-calculator');
+            const fetchCalc = document.getElementById('fetch-calculator');
+            
+            if (ajaxCalc && ajaxCalc.contains(event.target)) {
+                setActiveCalculator('ajax');
+            } else if (fetchCalc && fetchCalc.contains(event.target)) {
+                setActiveCalculator('fetch');
+            }
+        });
+
+        // Keyboard event listener แยกตามเครื่องคิดเลขที่ active
         document.addEventListener('keydown', function(event) {
             const key = event.key;
 
@@ -557,32 +594,66 @@
                 event.preventDefault();
             }
 
-            // loop ทำงานกับทั้ง ajax และ fetch พร้อมกัน
-            ['ajax', 'fetch'].forEach(calc => {
-                if (key >= '0' && key <= '9') {
-                    inputNumber(calc, key);
-                } else if (key === '.') {
-                    inputDot(calc);
-                } else if (key === '+' || key === '-' || key === '*' || key === '/') {
-                    inputOperator(calc, key);
-                } else if (key === 'Enter' || key === '=') {
-                    if (calc === 'ajax') {
-                        calculateAjax();
-                    } else {
-                        calculateFetch();
-                    }
-                } else if (key === 'Escape' || key === 'c' || key === 'C') {
-                    clearAll(calc);
-                } else if (key === 'Backspace') {
-                    clearEntry(calc);
+            // Tab สำหรับสลับเครื่องคิดเลข
+            if (key === 'Tab') {
+                event.preventDefault();
+                activeCalculator = activeCalculator === 'ajax' ? 'fetch' : 'ajax';
+                setActiveCalculator(activeCalculator);
+                return;
+            }
+
+            // ทำงานเฉพาะกับเครื่องคิดเลขที่ active เท่านั้น
+            if (key >= '0' && key <= '9') {
+                inputNumber(activeCalculator, key);
+            } else if (key === '.') {
+                inputDot(activeCalculator);
+            } else if (key === '+' || key === '-' || key === '*' || key === '/') {
+                inputOperator(activeCalculator, key);
+            } else if (key === 'Enter' || key === '=') {
+                if (activeCalculator === 'ajax') {
+                    calculateAjax();
+                } else {
+                    calculateFetch();
                 }
-            });
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearAll(activeCalculator);
+            } else if (key === 'Backspace') {
+                clearEntry(activeCalculator);
+            }
         });
+
+        // เพิ่มปุ่มสำหรับสลับเครื่องคิดเลข (optional)
+        function createSwitchButtons() {
+            const switchContainer = document.createElement('div');
+            switchContainer.style.textAlign = 'center';
+            switchContainer.style.margin = '10px 0';
+            
+            const ajaxButton = document.createElement('button');
+            ajaxButton.textContent = 'Ajax Calculator';
+            ajaxButton.onclick = () => setActiveCalculator('ajax');
+            
+            const fetchButton = document.createElement('button');
+            fetchButton.textContent = 'Fetch Calculator';
+            fetchButton.onclick = () => setActiveCalculator('fetch');
+            
+            switchContainer.appendChild(ajaxButton);
+            switchContainer.appendChild(fetchButton);
+            
+            // แทรกก่อนเครื่องคิดเลข
+            const calculators = document.querySelector('.calculator-container') || document.body;
+            calculators.parentNode.insertBefore(switchContainer, calculators);
+        }
+
+        // เรียกใช้ฟังก์ชันสร้างปุ่มสลับ
+        // createSwitchButtons();
+
+        // ตั้งค่าเริ่มต้น
+        setActiveCalculator('ajax');
 
         // แสดงข้อความช่วยเหลือเมื่อโหลดหน้า
         window.addEventListener('load', function() {
-            updateStatus('ajax', 'idle', 'พร้อมใช้งาน - กดคีย์บอร์ดธรรมดาใช้ AJAX');
-            updateStatus('fetch', 'idle', 'พร้อมใช้งาน - กด Shift+คีย์บอร์ดใช้ Fetch');
+            updateStatus('ajax', 'idle', 'พร้อมใช้งาน AJAX');
+            updateStatus('fetch', 'idle', 'พร้อมใช้งาน Fetch');
         });
     </script>
 </body>
